@@ -19,8 +19,8 @@ public class Commands {
 	static final int BYE = 7;
 
 	static final String[] commands = new String[] { "CONNECT", "DISCONNECT",
-			"MESSAGE", "LIST", "UNKNOWN", "UNSUPPORTED", "NO SUCH ALIAS", "BYE" };
-	
+		"MESSAGE", "LIST", "UNKNOWN", "UNSUPPORTED", "NO SUCH ALIAS", "BYE" };
+
 	static int getCommand(String input) {
 		for (int index = 0; index < commands.length; index++) {
 			if (input.startsWith(commands[index]))

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package dk.knord.chat.client;
 
 import java.io.IOException;
@@ -12,7 +9,6 @@ import java.net.UnknownHostException;
  * 
  */
 public class ChatClient {
-
 	private static ChatClientInput userInput;
 	private static ChatServerInput serverInput;
 	static Socket connection;

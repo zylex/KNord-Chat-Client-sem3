@@ -10,6 +10,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import dk.knord.chat.client.KNordHeaderFields.Requests;
+import dk.knord.chat.client.KNordHeaderFields.Responses;
+
 /**
  * @author John Frederiksen, Paul Frunza, Andrius Ordojan
  * 
@@ -26,7 +29,7 @@ public class ChatClientInput {
 
 	public boolean HandleInput(String userInput) {
 		if (connection == null) {
-			if (!userInput.startsWith(Commands.commands[Commands.CONNECT])) {
+			if (!userInput.startsWith(Responses.commands[Requests.])) {
 				// display error message
 			}
 		} else {

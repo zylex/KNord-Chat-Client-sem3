@@ -16,19 +16,23 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class Gui implements IGui {
+import dk.knord.chat.client.IChatClient;
+
+public class DisplayWindow implements IDisplayWindow {
 
 	private JFrame frmChatymacchatchatSoftware;
 	private JTextField textField;
 	private JButton btnSendMsg;
 	private JTextArea textArea;
 
-	private IClient client;
+	private IChatClient chatClient;
 	
-	public Gui(IClient cl) {
+	public DisplayWindow(IChatClient chatClient) {
 		initialize();
 		
-		client = cl;
+		this.chatClient = chatClient;
+		
+		frmChatymacchatchatSoftware.setVisible(false);
 	}
 
 	private void initialize() {
@@ -95,8 +99,8 @@ public class Gui implements IGui {
 		
 		btnSendMsg = new JButton("Send");
 		btnSendMsg.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				client.sendMsg(textField.getText());
+			public synchronized void actionPerformed(ActionEvent arg0) {
+				chatClient.sendMsg(textField.getText());
 				textField.setText("");
 			}
 		});
@@ -111,11 +115,15 @@ public class Gui implements IGui {
 	}
 
 	@Override
-	public void appendMsg(String msg) {
+	public synchronized void appendMsg(String msg) {
 		getTextArea().append(msg);
 	}
 	
 	protected JTextArea getTextArea() {
 		return textArea;
+	}
+	
+	public void setVisible(boolean b) {
+		frmChatymacchatchatSoftware.setVisible(b);
 	}
 }

@@ -7,77 +7,77 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import dk.knord.chat.client.KNordHeaderFields.Requests;
 
 /**
  * @author John Frederiksen, Paul Frunza, Andrius Ordojan
  * 
  */
 public class ChatServerInput implements Runnable {
-
-	Socket connection;
-	BufferedReader input;
+	private final Socket connection;
+	private final BufferedReader input;
 
 	public ChatServerInput(Socket connection) throws IOException {
 		this.connection = connection;
-		input = new BufferedReader(new InputStreamReader(
-				connection.getInputStream()));
+		input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 	}
 
 	@Override
 	public void run() {
 		while (ChatClient.running) {
-			// get input
-			String textInput = "";
 			try {
-				textInput = input.readLine();
-			} catch (IOException e) {
-				// TODO something clever to come soon (maybe send error message
-				// to gui)
-				e.printStackTrace();
+				
+				//TODO next line problem if a bunch of new lines
+				if (input.ready()) {
+					StringTokenizer st = new StringTokenizer(input.readLine());
+					
+					switch (Requests.getCommand(st.nextToken())) {
+					case Requests.Disconnect:
+						ChatClient.disconnect();
+						break;
+					case Requests.List:
+						List<String> chatters = new ArrayList<String>();
+						for (int i = 0; i < st.countTokens(); i++) {
+							String chatter = st.nextToken();
+							if (chatter.isEmpty()) continue;
+							
+							chatters.add(chatter);
+						}
+						
+						ChatClient.listChatters(chatters);
+						break;
+					case Requests.Message:
+						String source = st.nextToken();
+						String msg = st.nextToken();
+						ChatClient.printMsg(source, msg);
+						
+						// how do you know if its a 1to1 or a brodcast?
+						break;
+					case Requests.NoSuchAlias:
+						ChatClient.noSuchAlias();
+						break;
+					case Requests.Unsupported:
+						ChatClient.unsupported();
+						break;
+					default:
+						ChatClient.unknown();
+					}
+				}
+			} 
+			catch 
+			(IOException e) {
+				e.printStackTrace(System.err);
 			}
-			
-			// update logic
-			ChatClient.running = HandleInput(textInput);
-			
-			// update gui
-
 		}
-		// object disposal if needed
 
-	}
-
-	/**
-	 * @param input
-	 *            the String containing the command to be used
-	 * @return
-	 */
-	public boolean HandleInput(String input) {
-		switch (Commands.getCommand(input)) {
-		case Commands.CONNECT:
-
-			break;
-		case Commands.BYE:
-		case Commands.DISCONNECT:
-
-			return false;
-		case Commands.MESSAGE:
-
-			break;
-		case Commands.LIST:
-
-			break;
-		case Commands.UNKNOWN:
-
-			break;
-		case Commands.UNSUPPORTED:
-
-			break;
-		case Commands.NO_SUCH_ALIAS:
-
-			break;
-		default:
-
+		try {
+			connection.close();
+		} catch (IOException e) {
+			e.printStackTrace(System.err);
 		}
-		return true;
 	}
 }

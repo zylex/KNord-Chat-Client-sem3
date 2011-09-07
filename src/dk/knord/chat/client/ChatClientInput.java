@@ -5,10 +5,15 @@ package dk.knord.chat.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
+import org.GNOME.Accessibility.Command;
+
+import dk.knord.chat.client.gui.ChatClientGUI;
 
 /**
  * @author John Frederiksen, Paul Frunza, Andrius Ordojan
@@ -17,66 +22,50 @@ import java.util.StringTokenizer;
 public class ChatClientInput {
 
 	private PrintWriter output;
-	private Socket connection;
+	private ArrayList<String> messageBuffer = new ArrayList<String>(0);
 
-	public ChatClientInput(Socket connection) throws IOException {
-		this.connection = connection;
-		output = new PrintWriter(connection.getOutputStream());
+	public ChatClientInput() throws IOException {
+		output = new PrintWriter(ChatClient.connection.getOutputStream());
 	}
 
-	public boolean HandleInput(String userInput) {
-		if (connection == null) {
-			if (!userInput.startsWith(Commands.commands[Commands.CONNECT])) {
+	public boolean handleInput(String userInput, ChatClientGUI gui) {
+		// if blank line
+		if (userInput.equals("")) {
+			if (messageBuffer == null) {
 				// display error message
+			} else {
+				// send all messages
+				for (int index = 0; index < messageBuffer.size(); index++) {
+					sendMessage(messageBuffer.get(index), gui);
+				}
+				sendMessage("", gui);
+				messageBuffer = new ArrayList<String>(0);
 			}
-		} else {
 
+		} else {
 			switch (Commands.getCommand(userInput)) {
 			case Commands.CONNECT:
-				// connect to the server
 				ChatClient.connect();
-
-				// send connect message to the server
-				output.println(userInput);
+				sendMessage(userInput, gui);
+				sendMessage("", gui);
 				break;
 			case Commands.BYE:
 			case Commands.DISCONNECT:
-				// send disconnect message to the server
-				output.println(Commands.commands[Commands.DISCONNECT]); // use
-																		// id or
-																		// username
-																		// depending
-																		// on
-																		// the
-				// server side
-
-				// close connection
+				sendMessage(Commands.commands[Commands.DISCONNECT], gui);
+				sendMessage("", gui);
+				ChatClient.disconnect();
 				return false;
-			case Commands.MESSAGE:
-				StringTokenizer st = new StringTokenizer(userInput);
-				// if there are more tokens
-
-				// make sure there is an alias.
-					// send message to server
-
-					// if not display error message
-
-				// wait for the actual message
-					// send the message
-				
-				// if not display error message.
-				break;
-			case Commands.LIST:
-				// send list message to the server.
-				output.println(Commands.commands[Commands.LIST]);
-				break;
-
-			// command is unknown
-			default:
-				// display error message
 			}
+			// add line to the buffer
+			messageBuffer.add(userInput);
 		}
-		output.println();
 		return true;
 	}
+	
+	public void sendMessage(String message, ChatClientGUI gui) {
+		output.println(message);
+		gui.setDisplay("\nSENT: " + message);
+		output.flush();
+	}
+	
 }

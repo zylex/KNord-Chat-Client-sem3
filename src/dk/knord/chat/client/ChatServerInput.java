@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.StringTokenizer;
 
 /**
  * @author John Frederiksen, Paul Frunza, Andrius Ordojan
@@ -14,8 +15,9 @@ import java.net.Socket;
  */
 public class ChatServerInput implements Runnable {
 
-	Socket connection;
-	BufferedReader input;
+	private Socket connection;
+	private BufferedReader input;
+	private boolean lastCommandIsMessage = false;
 
 	public ChatServerInput(Socket connection) throws IOException {
 		this.connection = connection;
@@ -35,10 +37,10 @@ public class ChatServerInput implements Runnable {
 				// to gui)
 				e.printStackTrace();
 			}
-			
+
 			// update logic
 			ChatClient.running = HandleInput(textInput);
-			
+
 			// update gui
 
 		}
@@ -49,35 +51,61 @@ public class ChatServerInput implements Runnable {
 	/**
 	 * @param input
 	 *            the String containing the command to be used
-	 * @return
 	 */
-	public boolean HandleInput(String input) {
-		switch (Commands.getCommand(input)) {
-		case Commands.CONNECT:
+	public boolean HandleInput(String serverInput) {
+		if (connection == null) {
+			if (!serverInput.startsWith(Commands.commands[Commands.CONNECT])) {
+				// display error message
+			}
+		} else {
+			if (lastCommandIsMessage) {
 
-			break;
-		case Commands.BYE:
-		case Commands.DISCONNECT:
+				lastCommandIsMessage = false;
+			} else {
+				switch (Commands.getCommand(serverInput)) {
+				case Commands.CONNECT:
+					// connect to the server
+					ChatClient.connect();
 
-			return false;
-		case Commands.MESSAGE:
+					// send connect message to the server
+					// output.println(serverInput);
+					break;
+				case Commands.BYE:
+				case Commands.DISCONNECT:
+					// send disconnect message to the server
+					// output.println(Commands.commands[Commands.DISCONNECT]);
 
-			break;
-		case Commands.LIST:
+					// close connection
+					ChatClient.disconnect();
+					return false;
+				case Commands.MESSAGE:
+					StringTokenizer st = new StringTokenizer(serverInput);
+					st.nextToken();
+					// if there are more tokens
+					if (st.hasMoreTokens()) {
+						// send message to server
+						// output.println(serverInput);
+						lastCommandIsMessage = true;
+					} else {
+						// if not display error message
+					}
 
-			break;
-		case Commands.UNKNOWN:
+					break;
+				case Commands.LIST:
+					// send list message to the server.
+					// output.println(Commands.commands[Commands.LIST]);
+					break;
 
-			break;
-		case Commands.UNSUPPORTED:
-
-			break;
-		case Commands.NO_SUCH_ALIAS:
-
-			break;
-		default:
-
+				// command is unknown
+				default:
+					// display error message
+				}
+			}
 		}
-		return true;
+		if (!lastCommandIsMessage) {
+			
+		}			
+			// output.println();
+			return true;
 	}
 }

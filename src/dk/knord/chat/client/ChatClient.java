@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import dk.knord.chat.client.gui.ChatClientGUI;
+
 /**
  * @author John Frederiksen, Paul Frunza, Andrius Ordojan
  * 
@@ -21,6 +23,7 @@ public class ChatClient {
 	static String username; // one "static" user per client
 	static final String serverIP = "localhost";
 	static final int port = 4711;
+	static ChatClientGUI window;
 
 	/**
 	 * @param args
@@ -34,18 +37,20 @@ public class ChatClient {
 		serverThread.start(); // listen for server messages.
 
 		// load gui
-
+		window = new ChatClientGUI();
+		window.setVisible(true);
+		/*
 		// main loop
 		while (running) {
 			// get user input
 			String in = "";
 
 			// update logic
-			running = userInput.HandleInput(in);
+			running = userInput.handleInput(in);
 
 			// update gui
 
-		}
+		}*/
 		// object disposal if needed
 		serverThread.stop(); // needed???
 	}
@@ -57,7 +62,7 @@ public class ChatClient {
 		disconnect();
 		try {
 			connection = new Socket(serverIP, port);
-			userInput = new ChatClientInput(connection);
+			userInput = new ChatClientInput();
 			serverInput = new ChatServerInput(connection);
 		} catch (UnknownHostException e) {
 			running = false; // stop program if error
@@ -78,6 +83,10 @@ public class ChatClient {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static void sendInput(String input) {
+		userInput.handleInput(input, window);
 	}
 
 }

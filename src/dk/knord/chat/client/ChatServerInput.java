@@ -1,6 +1,3 @@
-/**
- * 
- */
 package dk.knord.chat.client;
 
 import java.io.BufferedReader;

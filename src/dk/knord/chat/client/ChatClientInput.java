@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import dk.knord.chat.client.KNordHeaderFields.ClientToServer;
 
@@ -25,7 +26,7 @@ public class ChatClientInput {
 	public void handleInput(String userInput) {
 		// if blank line
 		if (userInput.equals("")) {
-			if (messageBuffer == null) {
+			if (messageBuffer.isEmpty() || messageBuffer == null) {
 				// display error message
 				ChatClient.printMsg("Nothing to send.");
 			} else {
@@ -55,6 +56,9 @@ public class ChatClientInput {
 			ChatClient.disconnect();
 			break;
 		case ClientToServer.CONNECT:
+			StringTokenizer st = new StringTokenizer(messageBuffer.get(0));
+			st.nextToken();
+			ChatClient.setUsername(st.nextToken());
 			ChatClient.connect();
 		default:
 			ChatClient.printMsg("SENT:");
@@ -66,9 +70,9 @@ public class ChatClientInput {
 		messageBuffer.removeAll(messageBuffer);
 	}
 
-	private void sendLine(String msg) {
+	public void sendLine(String msg) {
 		output.println(msg);
-		ChatClient.printMsg(msg);
+		ChatClient.printMsg("> " + msg);
 		output.flush();
 	}
 

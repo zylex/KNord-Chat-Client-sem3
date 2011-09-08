@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 import dk.knord.chat.client.gui.DisplayWindow;
 
 /**
@@ -24,17 +26,32 @@ public class ChatClient implements IChatClient {
 	private static Thread serverThread = new Thread();
 
 	public static void main(String[] args) {
-		
+		// start by getting a username
+
+		username = JOptionPane.showInputDialog(null, "Enter a username: ",
+				"ChatyMacChatChat Software", 1);
+		System.out.println(username);
 		// load resources
 		running = true;
 		userInput = new ChatClientInput();
 		serverInput = new ChatServerInput();
 		window = new DisplayWindow(userInput);
+		// display a welcome message
+		printMsg("KNord Chat Client\nWritten by John Frederiksen, Andrius Ordojan\n and Paul Frunza.");
+
 		// specifications say to connect here.
 		connect();
-		
+
 		window.setVisible(true); // show gui
-		
+
+	}
+
+	/**
+	 * @param username
+	 *            the username to set
+	 */
+	public static void setUsername(String username) {
+		ChatClient.username = username;
 	}
 
 	protected static void connect() {
@@ -47,7 +64,8 @@ public class ChatClient implements IChatClient {
 			serverThread.interrupt();
 			serverThread = new Thread(serverInput);
 			serverThread.start(); // listen for server messages.
-			
+			userInput.sendLine("CONNECT " + username);
+			userInput.sendLine("");
 		} catch (UnknownHostException e) {
 			disconnect(); // stop program if error
 			e.printStackTrace(); // should do something better
@@ -98,7 +116,5 @@ public class ChatClient implements IChatClient {
 		// TODO Auto-generated method stub
 		// send msg to server...
 	}
-	
-	
 
 }

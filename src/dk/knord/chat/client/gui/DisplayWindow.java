@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,7 +17,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import dk.knord.chat.client.IChatClient;
+import dk.knord.chat.client.ChatClientInput;
 
 public class DisplayWindow implements IDisplayWindow {
 
@@ -24,13 +25,14 @@ public class DisplayWindow implements IDisplayWindow {
 	private JTextField textField;
 	private JButton btnSendMsg;
 	private JTextArea textArea;
+	private JList list;
+	private JScrollPane scrollPane_1;
 
-	private IChatClient chatClient;
+	private ChatClientInput userInput;
 	
-	public DisplayWindow(IChatClient chatClient) {
+	public DisplayWindow(ChatClientInput chatClientInput) {
 		initialize();
-		
-		this.chatClient = chatClient;
+		this.userInput = chatClientInput;
 		
 		frmChatymacchatchatSoftware.setVisible(false);
 	}
@@ -64,10 +66,11 @@ public class DisplayWindow implements IDisplayWindow {
 		textArea.setBackground(Color.BLACK);
 		scrollPane.setViewportView(textArea);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1 = new JScrollPane();
 		splitPane.setRightComponent(scrollPane_1);
 		
-		JList list = new JList();
+		Vector<String> listData = new Vector<String>();
+		list = new JList(listData);
 		list.setForeground(Color.WHITE);
 		list.setBackground(Color.BLACK);
 		scrollPane_1.setViewportView(list);
@@ -100,7 +103,7 @@ public class DisplayWindow implements IDisplayWindow {
 		btnSendMsg = new JButton("Send");
 		btnSendMsg.addActionListener(new ActionListener() {
 			public synchronized void actionPerformed(ActionEvent arg0) {
-				chatClient.sendMsg(textField.getText());
+				userInput.handleInput(textField.getText());
 				textField.setText("");
 			}
 		});
@@ -116,7 +119,7 @@ public class DisplayWindow implements IDisplayWindow {
 
 	@Override
 	public synchronized void appendMsg(String msg) {
-		getTextArea().append(msg);
+		getTextArea().append(msg + "\n");
 	}
 	
 	protected JTextArea getTextArea() {
@@ -126,4 +129,18 @@ public class DisplayWindow implements IDisplayWindow {
 	public void setVisible(boolean b) {
 		frmChatymacchatchatSoftware.setVisible(b);
 	}
+	
+	public void displayChatters(Vector<String> chatters) {
+		list.setListData(chatters);
+		scrollPane_1.revalidate();
+		scrollPane_1.repaint();
+	}
+
+	/**
+	 * @param userInput the userInput to set
+	 */
+	public void setUserInput(ChatClientInput userInput) {
+		this.userInput = userInput;
+	}
+
 }

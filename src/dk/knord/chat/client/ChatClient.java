@@ -64,8 +64,7 @@ public class ChatClient implements IChatClient {
 			serverThread.interrupt();
 			serverThread = new Thread(serverInput);
 			serverThread.start(); // listen for server messages.
-			userInput.sendLine("CONNECT " + username);
-			userInput.sendLine("");
+			sendToServer("CONNECT " + username);
 		} catch (UnknownHostException e) {
 			disconnect(); // stop program if error
 			e.printStackTrace(); // should do something better
@@ -113,8 +112,15 @@ public class ChatClient implements IChatClient {
 
 	@Override
 	public void sendMsg(String text) {
-		// TODO Auto-generated method stub
+		userInput.sendLine(text);
+		userInput.sendLine("");
 		// send msg to server...
+	}
+
+	public static void sendToServer(String message) {
+		// send message to the server
+		userInput.sendLine(message);
+		userInput.sendLine("");
 	}
 
 }

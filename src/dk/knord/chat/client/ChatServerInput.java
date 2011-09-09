@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import com.sun.corba.se.spi.activation.Server;
 
 import dk.knord.chat.client.KNordHeaderFields.ServerToClient;
 
@@ -16,15 +19,28 @@ import dk.knord.chat.client.KNordHeaderFields.ServerToClient;
  */
 public class ChatServerInput implements Runnable {
 	private BufferedReader input;
+	private ArrayList<String> inputMessageBuffer;
 
 	public ChatServerInput() {
+		inputMessageBuffer = new ArrayList<String>(0);
 	}
 
 	@Override
 	public void run() {
 		while (ChatClient.running) {
 			try {
-
+				if (input.ready()) {
+					String message = input.readLine();
+					if (message.equals("")) {
+						// execute the messageBuffer
+					}
+					else {
+						//add message to buffer
+						inputMessageBuffer.add(message);
+					}
+				
+				
+				/*
 				// TODO next line problem if a bunch of new lines
 				if (input.ready()) {
 					StringTokenizer st = new StringTokenizer(input.readLine());
@@ -65,7 +81,7 @@ public class ChatServerInput implements Runnable {
 						break;
 					default:
 						ChatClient.unknown();
-					}
+					}*/
 				}
 			} catch (IOException e) {
 				e.printStackTrace(System.err);
@@ -82,6 +98,17 @@ public class ChatServerInput implements Runnable {
 	public void setConnection(Socket connection) throws IOException {
 		input = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
+	}
+	
+	private void executeMessageBuffer() {
+		if (inputMessageBuffer.isEmpty())
+			ChatClient.printMsg("RECEIVED: Empty message from server.");
+			ChatClient.sendToServer("UNKNOWN");
+		String command = inputMessageBuffer.get(0);
+		switch (ServerToClient.getCommand(command)) {
+		default:
+			// 
+		}
 	}
 
 }

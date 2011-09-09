@@ -81,32 +81,38 @@ public class ChatServerInput implements Runnable {
 	}
 
 	private void executeMessageBuffer() {
-		if (inputMessageBuffer.isEmpty())
+		if (inputMessageBuffer.isEmpty()) {
 			ChatClient.printMsg("RECEIVED: Empty message from server.");
-		ChatClient
-				.sendToServer(ClientToServer.commands[ClientToServer.UNKNOWN]);
-		String command = inputMessageBuffer.get(0);
-		switch (ServerToClient.getCommand(command)) {
-		case ServerToClient.LIST:
-			Vector<String> chatters = new Vector<String>(0);
-			for (int i = 1; i < inputMessageBuffer.size(); i++) {
-				chatters.add(inputMessageBuffer.get(i));
-			}
-			ChatClient.listChatters(chatters);
-			break;
-		case ServerToClient.DISCONNECT:
-			ChatClient.printMsg("RECEIVED:\n> DISCONNECT > Client is disconnecting...");
-			ChatClient.disconnect();
-			ChatClient.printMsg("> You are now disconnected");
-			break;
-		default:
-			ChatClient.printMsg("RECEIVED:\n");
-			for (int index = 0; index < inputMessageBuffer.size(); index++) {
+			ChatClient
+					.sendToServer(ClientToServer.commands[ClientToServer.UNKNOWN]);
+		} else {
+			String command = inputMessageBuffer.get(0);
+			switch (ServerToClient.getCommand(command)) {
+			case ServerToClient.LIST:
+				Vector<String> chatters = new Vector<String>(0);
+				for (int i = 1; i < inputMessageBuffer.size(); i++) {
+					chatters.add(inputMessageBuffer.get(i));
+				}
+				ChatClient.listChatters(chatters);
+				ChatClient.printMsg("RECEIVED:");
+				for (int index = 0; index < inputMessageBuffer.size(); index++) {
+					ChatClient.printMsg("> " + inputMessageBuffer.get(index));
+				}
+				break;
+			case ServerToClient.DISCONNECT:
 				ChatClient
-						.printMsg("> " + inputMessageBuffer.get(index) + "\n");
+						.printMsg("RECEIVED:\n> DISCONNECT > Client is disconnecting...");
+				ChatClient.disconnect();
+				ChatClient.printMsg("> You are now disconnected");
+				break;
+			default:
+				ChatClient.printMsg("RECEIVED:\n");
+				for (int index = 0; index < inputMessageBuffer.size(); index++) {
+					ChatClient.printMsg("> " + inputMessageBuffer.get(index)
+							+ "\n");
+				}
 			}
 		}
 
 	}
-
 }

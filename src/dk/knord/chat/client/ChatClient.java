@@ -3,6 +3,7 @@ package dk.knord.chat.client;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -13,12 +14,11 @@ import dk.knord.chat.client.gui.DisplayWindow;
  * @author John Frederiksen, Paul Frunza, Andrius Ordojan
  * 
  */
-public class ChatClient implements IChatClient {
+public class ChatClient {
 	private static ChatClientInput userInput;
 	private static ChatServerInput serverInput;
 	static Socket connection;
 	static boolean running;
-	static int id;
 	static String username; // one "static" user per client
 	static final String serverIP = "localhost";
 	static final int port = 4711;
@@ -30,7 +30,6 @@ public class ChatClient implements IChatClient {
 
 		username = JOptionPane.showInputDialog(null, "Enter a username: ",
 				"ChatyMacChatChat Software", 1);
-		System.out.println(username);
 		// load resources
 		running = true;
 		userInput = new ChatClientInput();
@@ -74,7 +73,7 @@ public class ChatClient implements IChatClient {
 		}
 	}
 
-	protected static void disconnect() {
+	public static void disconnect() {
 		// make sure there is a connection
 		if (connection != null) {
 			try {
@@ -88,33 +87,12 @@ public class ChatClient implements IChatClient {
 	}
 
 	protected static void listChatters(Vector<String> chatters) {
+		Collections.sort(chatters);
 		window.displayChatters(chatters);
 	}
 
 	protected static void printMsg(String msg) {
 		window.appendMsg(msg);
-	}
-
-	public static void noSuchAlias() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public static void unsupported() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public static void unknown() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sendMsg(String text) {
-		userInput.sendLine(text);
-		userInput.sendLine("");
-		// send msg to server...
 	}
 
 	public static void sendToServer(String message) {

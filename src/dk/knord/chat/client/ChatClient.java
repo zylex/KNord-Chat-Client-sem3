@@ -18,7 +18,7 @@ public class ChatClient {
 	private static ChatClientInput userInput;
 	private static ChatServerInput serverInput;
 	static Socket connection;
-	static boolean running;
+	private static boolean running;
 	static String username; // one "static" user per client
 	static final String serverIP = "localhost";
 	static final int port = 4711;
@@ -31,7 +31,7 @@ public class ChatClient {
 		username = JOptionPane.showInputDialog(null, "Enter a username: ",
 				"ChatyMacChatChat Software", 1);
 		// load resources
-		running = true;
+		setRunning(true);
 		userInput = new ChatClientInput();
 		serverInput = new ChatServerInput();
 		window = new DisplayWindow(userInput);
@@ -64,6 +64,7 @@ public class ChatClient {
 			serverThread = new Thread(serverInput);
 			serverThread.start(); // listen for server messages.
 			sendToServer("CONNECT " + username);
+			sendToServer("LIST");
 		} catch (UnknownHostException e) {
 			disconnect(); // stop program if error
 			e.printStackTrace(); // should do something better
@@ -77,8 +78,9 @@ public class ChatClient {
 		// make sure there is a connection
 		if (connection != null) {
 			try {
-				connection.close();
 				running = false;
+				serverThread.interrupt();
+				connection.close();
 			} catch (IOException e) {
 				// TODO we should try to be clever here...
 				e.printStackTrace();
@@ -99,6 +101,20 @@ public class ChatClient {
 		// send message to the server
 		userInput.sendLine(message);
 		userInput.sendLine("");
+	}
+
+	/**
+	 * @return the running
+	 */
+	public static boolean isRunning() {
+		return running;
+	}
+
+	/**
+	 * @param running the running to set
+	 */
+	public static void setRunning(boolean running) {
+		ChatClient.running = running;
 	}
 
 }

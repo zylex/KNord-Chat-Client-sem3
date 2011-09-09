@@ -10,6 +10,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -56,7 +57,9 @@ public class DisplayWindow implements IDisplayWindow {
 			public void windowClosing(WindowEvent e) {
 				ChatClient
 						.sendToServer(ClientToServer.commands[ClientToServer.DISCONNECT]);
+				ChatClient.setRunning(false);
 				ChatClient.disconnect();
+
 				frmChatymacchatchatSoftware.dispose();
 			}
 		});
@@ -151,6 +154,7 @@ public class DisplayWindow implements IDisplayWindow {
 	@Override
 	public synchronized void appendMsg(String msg) {
 		getTextArea().append(msg + "\n");
+		textArea.setCaretPosition(textArea.getCaretPosition() + msg.length());
 	}
 
 	protected JTextArea getTextArea() {
@@ -167,13 +171,21 @@ public class DisplayWindow implements IDisplayWindow {
 			list.setListData(chatters);
 			// sometimes makes an array out of bounds exception if the gui is
 			// not refreshed with a runnable using invokeLater() method.
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					scrollPane_1.revalidate();
-					scrollPane_1.repaint();
-				}
-			});
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						scrollPane_1.validate();
+						scrollPane_1.repaint();
+					}
+				});
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

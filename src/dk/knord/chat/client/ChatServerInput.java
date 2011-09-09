@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import dk.knord.chat.client.KNordHeaderFields.ClientToServer;
 import dk.knord.chat.client.KNordHeaderFields.ServerToClient;
 
 /**
@@ -24,44 +23,21 @@ public class ChatServerInput implements Runnable {
 
 	@Override
 	public void run() {
-		while (ChatClient.running) {
+		while (ChatClient.isRunning()) {
 			try {
 				if (input.ready()) {
 					String message = input.readLine();
-					if (message.equals("")) {
-						// execute the messageBuffer
-						executeMessageBuffer();
-					} else {
-						// add message to buffer
-						inputMessageBuffer.add(message);
+					if (message != null) {
+						System.out.println(message);
+						if (message.equals("")) {
+							// execute the messageBuffer
+							System.out.println("why is this executed twice?");
+							executeMessageBuffer();
+						} else {
+							// add message to buffer
+							inputMessageBuffer.add(message);
+						}
 					}
-
-					/*
-					 * // TODO next line problem if a bunch of new lines if
-					 * (input.ready()) { StringTokenizer st = new
-					 * StringTokenizer(input.readLine());
-					 * 
-					 * switch (ServerToClient.getCommand(st.nextToken())) { case
-					 * ServerToClient.DISCONNECT: ChatClient.disconnect();
-					 * break; case ServerToClient.LIST: Vector<String> chatters
-					 * = new Vector<String>(0); for (int i = 0; i <
-					 * st.countTokens(); i++) { String chatter = st.nextToken();
-					 * if (chatter.isEmpty()) continue;
-					 * 
-					 * chatters.add(chatter); } Collections.sort(chatters);
-					 * ChatClient.listChatters(chatters); break; case
-					 * ServerToClient.MESSAGE: st.nextToken(); String msg =
-					 * st.nextToken() + " says: "; while (st.hasMoreTokens()) {
-					 * msg += st.nextToken(); } ChatClient.printMsg(msg);
-					 * 
-					 * // how do you know if its a 1to1 or a brodcast? //
-					 * protocol does not allow it...
-					 * 
-					 * break; case ServerToClient.NO_SUCH_ALIAS:
-					 * ChatClient.noSuchAlias(); break; case
-					 * ServerToClient.UNSUPPORTED: ChatClient.unsupported();
-					 * break; default: ChatClient.unknown(); }
-					 */
 				}
 			} catch (IOException e) {
 				e.printStackTrace(System.err);
@@ -83,8 +59,9 @@ public class ChatServerInput implements Runnable {
 	private void executeMessageBuffer() {
 		if (inputMessageBuffer.isEmpty()) {
 			ChatClient.printMsg("RECEIVED: Empty message from server.");
-			ChatClient
-					.sendToServer(ClientToServer.commands[ClientToServer.UNKNOWN]);
+			// TODO next line causes an infinite loop with hte server.
+			/*ChatClient
+					.sendToServer(ClientToServer.commands[ClientToServer.UNKNOWN]);*/
 		} else {
 			String command = inputMessageBuffer.get(0);
 			switch (ServerToClient.getCommand(command)) {
@@ -94,10 +71,13 @@ public class ChatServerInput implements Runnable {
 					chatters.add(inputMessageBuffer.get(i));
 				}
 				ChatClient.listChatters(chatters);
-				ChatClient.printMsg("RECEIVED:");
+				// ChatClient.printMsg("RECEIVED:"
+				// + ServerToClient.commands[ServerToClient.LIST]);
+
 				for (int index = 0; index < inputMessageBuffer.size(); index++) {
 					ChatClient.printMsg("> " + inputMessageBuffer.get(index));
 				}
+
 				break;
 			case ServerToClient.DISCONNECT:
 				ChatClient
@@ -113,6 +93,6 @@ public class ChatServerInput implements Runnable {
 				}
 			}
 		}
-
+		inputMessageBuffer = new ArrayList<String>(0);
 	}
 }

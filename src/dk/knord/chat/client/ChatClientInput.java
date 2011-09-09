@@ -41,7 +41,8 @@ public class ChatClientInput {
 	}
 
 	public void setConnection(Socket connection) throws IOException {
-		output = new PrintWriter(connection.getOutputStream());
+		output = new PrintWriter(connection.getOutputStream(), true); // auto
+																		// flush
 	}
 
 	private void sendMessages() {
@@ -73,7 +74,6 @@ public class ChatClientInput {
 	public void sendLine(String msg) {
 		output.println(msg);
 		ChatClient.printMsg("> " + msg);
-		output.flush();
 	}
 
 }

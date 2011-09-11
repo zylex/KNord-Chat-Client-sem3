@@ -23,28 +23,37 @@ public class ChatClient {
 	static final int port = 4711;
 	private static DisplayWindow window;
 	private static Thread serverThread = new Thread();
-	private static final String WELCOME_MESSAGE = "KNord Chat Client Written by John Frederiksen, Andrius Ordojan and Paul Frunza."
-			+ "\nFollows KNCP protocol."
-			+ "\nUse a blank line to execute a command.";
+	private static final String WELCOME_MESSAGE = "KNord Chat Client Written by John Frederiksen, Andrius Ordojan and Paul Frunza.";
 
 	public static void main(String[] args) {
 		// start by getting a username
 
 		username = JOptionPane.showInputDialog(null, "Enter a username: ",
 				"ChatyMacChatChat Software", 1);
-		// load resources
-		setRunning(true);
-		userInput = new ChatClientInput();
-		serverInput = new ChatServerInput();
-		window = new DisplayWindow(userInput);
-		// display a welcome message
-		printMsg(WELCOME_MESSAGE);
+		if (username != null) {
+			// load resources
+			setRunning(true);
+			userInput = new ChatClientInput();
+			serverInput = new ChatServerInput();
+			window = new DisplayWindow(userInput);
+			// display a welcome message
+			printMsg(WELCOME_MESSAGE);
 
-		// specifications say to connect here.
-		connect();
+			// specifications say to connect here.
+			connect();
 
-		window.setVisible(true); // show gui
+			window.setVisible(true); // show gui
 
+			if (running == false) {
+				printMsg("Shutting down in 2 seconds...");
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					window.close();
+				}
+				window.close();
+			}
+		}
 	}
 
 	/**
@@ -68,11 +77,11 @@ public class ChatClient {
 			sendToServer("CONNECT " + username);
 			window.setUser(username);
 		} catch (UnknownHostException e) {
-			disconnect(); // stop program if error
-			e.printStackTrace(); // should do something better
+			printMsg(e.getMessage() + " - UnknownHostException");
+			running = false;
 		} catch (IOException e) {
-			disconnect(); // stop program if error
-			e.printStackTrace(); // might do something better eventually
+			printMsg(e.getMessage() + " - IOException");
+			running = false;
 		}
 	}
 
@@ -102,8 +111,10 @@ public class ChatClient {
 
 	public static void sendToServer(String message) {
 		// send message to the server
-		userInput.sendLine(message);
-		userInput.sendLine("");
+		if (connection != null) {
+			userInput.sendLine(message);
+			userInput.sendLine("");
+		}
 	}
 
 	/**

@@ -49,6 +49,13 @@ public class DisplayWindow implements IDisplayWindow {
 		frmChatymacchatchatSoftware.setVisible(false);
 	}
 
+	/**
+	 * @return the frmChatymacchatchatSoftware
+	 */
+	public JFrame getJFrame() {
+		return frmChatymacchatchatSoftware;
+	}
+
 	private void initialize() {
 		frmChatymacchatchatSoftware = new JFrame();
 		frmChatymacchatchatSoftware.setTitle("ChatyMacChatChat Software");
@@ -58,12 +65,7 @@ public class DisplayWindow implements IDisplayWindow {
 		frmChatymacchatchatSoftware.dispose();
 		frmChatymacchatchatSoftware.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				ChatClient
-						.sendToServer(ClientToServer.commands[ClientToServer.DISCONNECT]);
-				ChatClient.setRunning(false);
-				ChatClient.disconnect();
-
-				frmChatymacchatchatSoftware.dispose();
+				close();
 			}
 		});
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -131,7 +133,7 @@ public class DisplayWindow implements IDisplayWindow {
 		// auto scroll
 		DefaultCaret caret = (DefaultCaret) textArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		
+
 		GridBagConstraints gbc_textField = new GridBagConstraints();
 		gbc_textField.insets = new Insets(0, 0, 0, 5);
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
@@ -261,12 +263,35 @@ public class DisplayWindow implements IDisplayWindow {
 	}
 
 	private void sendMessageToChatClientInput() {
-		userInput.handleInput(textField.getText());
+		if (list.isSelectionEmpty()) {
+			userInput
+					.handleInput(ClientToServer.commands[ClientToServer.MESSAGE_ALL]);
+			userInput.handleInput(textField.getText());
+			userInput.handleInput("");
+		} else {
+			String dest = (String) list.getModel().getElementAt(
+					list.getSelectedIndex());
+			userInput
+					.handleInput(ClientToServer.commands[ClientToServer.MESSAGE]
+							+ " " + dest);
+			userInput.handleInput(textField.getText());
+			userInput.handleInput("");
+		}
 		textField.setText("");
+		list.clearSelection();
 	}
 
 	public void setUser(String username) {
-		frmChatymacchatchatSoftware.setTitle("ChatyMacChatChat Software: " + username);
+		frmChatymacchatchatSoftware.setTitle("ChatyMacChatChat Software: "
+				+ username);
+	}
+
+	public void close() {
+		ChatClient
+				.sendToServer(ClientToServer.commands[ClientToServer.DISCONNECT]);
+		ChatClient.setRunning(false);
+		ChatClient.disconnect();
+		frmChatymacchatchatSoftware.dispose();
 	}
 
 }

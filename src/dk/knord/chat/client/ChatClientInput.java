@@ -31,11 +31,13 @@ public class ChatClientInput {
 				ChatClient.printMsg("Nothing to send.");
 			} else {
 				// send all messages
+				// ChatClient.printMsg("Sending all messages");
 				sendMessages();
 			}
 
 		} else {
 			// add line to the buffer
+			// ChatClient.printMsg("Added >" + userInput + "< to the buffer");
 			messageBuffer.add(userInput);
 		}
 	}
@@ -71,13 +73,17 @@ public class ChatClientInput {
 			ChatClient.printMsg("User list updated.");
 			break;
 		case ClientToServer.MESSAGE:
+		case ClientToServer.MESSAGE_ALL:
 			st = new StringTokenizer(messageBuffer.get(0));
 			st.nextToken();
 			String dest = st.nextToken();
-			String message = "To " + dest + ": " + messageBuffer.get(1);
-			if (messageBuffer.size() > 2) {
-				for (int index = 2; index < messageBuffer.size(); index++) {
-					message += "\n" + messageBuffer.get(index);
+			String message = "To " + dest + ": ";
+			if (messageBuffer.size() > 1) {
+				message += messageBuffer.get(1);
+				if (messageBuffer.size() > 2) {
+					for (int index = 2; index < messageBuffer.size(); index++) {
+						message += "\n" + messageBuffer.get(index);
+					}
 				}
 			}
 			sendAllLines();
@@ -98,6 +104,7 @@ public class ChatClientInput {
 
 	public void sendLine(String msg) {
 		output.println(msg);
+		output.flush();
 		// ChatClient.printMsg("> " + msg);
 	}
 
@@ -105,6 +112,7 @@ public class ChatClientInput {
 		for (int index = 0; index < messageBuffer.size(); index++) {
 			sendLine(messageBuffer.get(index));
 		}
+		sendLine("");
 		sendLine("");
 	}
 

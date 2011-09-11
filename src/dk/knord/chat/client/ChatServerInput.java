@@ -26,7 +26,7 @@ public class ChatServerInput implements Runnable {
 	public void run() {
 		while (ChatClient.isRunning()) {
 			try {
-				if (input.ready()) {
+				//if (input.ready()) {
 					String message = input.readLine();
 					if (message != null) {
 						if (message.equals("")) {
@@ -37,9 +37,9 @@ public class ChatServerInput implements Runnable {
 							inputMessageBuffer.add(message);
 						}
 					}
-				}
+				//}
 			} catch (IOException e) {
-				e.printStackTrace(System.err);
+				ChatClient.printMsg(e.getMessage());
 			}
 		}
 

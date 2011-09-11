@@ -32,13 +32,14 @@ public class KNordHeaderFields {
 		public static final int CONNECT = 0;
 		public static final int DISCONNECT = 1;
 		public static final int MESSAGE = 2;
-		public static final int LIST = 3;
-		public static final int UNKNOWN = 4;
-		public static final int UNSUPPORTED = 5;
-		public static final int BYE = 6;
+		public static final int MESSAGE_ALL = 3;
+		public static final int LIST = 4;
+		public static final int UNKNOWN = 5;
+		public static final int UNSUPPORTED = 6;
+		public static final int BYE = 7;
 
 		public static final String[] commands = new String[] { "CONNECT",
-				"DISCONNECT", "MESSAGE", "LIST", "UNKNOWN", "UNSUPPORTED", "BYE" };
+				"DISCONNECT", "MESSAGE", "MESSAGE ALL", "LIST", "UNKNOWN", "UNSUPPORTED", "BYE" };
 
 		public static int getCommand(String input) {
 			int command = -1; // Unknown by default

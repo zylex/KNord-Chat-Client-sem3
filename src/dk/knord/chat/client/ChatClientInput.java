@@ -55,25 +55,50 @@ public class ChatClientInput {
 			sendLine(ClientToServer.commands[ClientToServer.DISCONNECT]);
 			sendLine("");
 			ChatClient.disconnect();
+			ChatClient
+					.printMsg("You have now been disconnected from the server.");
 			break;
 		case ClientToServer.CONNECT:
 			StringTokenizer st = new StringTokenizer(messageBuffer.get(0));
 			st.nextToken();
 			ChatClient.setUsername(st.nextToken());
 			ChatClient.connect();
-		default:
-			ChatClient.printMsg("SENT:");
-			for (int index = 0; index < messageBuffer.size(); index++) {
-				sendLine(messageBuffer.get(index));
+			ChatClient.printMsg("You are now connected to the server.");
+			sendAllLines();
+			break;
+		case ClientToServer.LIST:
+			sendAllLines();
+			ChatClient.printMsg("User list updated.");
+			break;
+		case ClientToServer.MESSAGE:
+			st = new StringTokenizer(messageBuffer.get(0));
+			st.nextToken();
+			String dest = st.nextToken();
+			String message = "To " + dest + ": " + messageBuffer.get(1);
+			if (messageBuffer.size() > 2) {
+				for (int index = 2; index < messageBuffer.size(); index++) {
+					message += "\n" + messageBuffer.get(index);
+				}
 			}
-			sendLine("");
+			sendAllLines();
+			ChatClient.printMsg(message);
+			break;
+		default:
+
 		}
 		messageBuffer.removeAll(messageBuffer);
 	}
 
 	public void sendLine(String msg) {
 		output.println(msg);
-		ChatClient.printMsg("> " + msg);
+		// ChatClient.printMsg("> " + msg);
+	}
+
+	private void sendAllLines() {
+		for (int index = 0; index < messageBuffer.size(); index++) {
+			sendLine(messageBuffer.get(index));
+		}
+		sendLine("");
 	}
 
 }

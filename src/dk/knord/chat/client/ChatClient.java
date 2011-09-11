@@ -23,6 +23,9 @@ public class ChatClient {
 	static final int port = 4711;
 	private static DisplayWindow window;
 	private static Thread serverThread = new Thread();
+	private static final String WELCOME_MESSAGE = "KNord Chat Client Written by John Frederiksen, Andrius Ordojan and Paul Frunza."
+			+ "\nFollows KNCP protocol."
+			+ "\nUse a blank line to execute a command.";
 
 	public static void main(String[] args) {
 		// start by getting a username
@@ -35,7 +38,7 @@ public class ChatClient {
 		serverInput = new ChatServerInput();
 		window = new DisplayWindow(userInput);
 		// display a welcome message
-		printMsg("KNord Chat Client\nWritten by John Frederiksen, Andrius Ordojan\n and Paul Frunza.");
+		printMsg(WELCOME_MESSAGE);
 
 		// specifications say to connect here.
 		connect();
@@ -63,6 +66,7 @@ public class ChatClient {
 			serverThread = new Thread(serverInput);
 			serverThread.start(); // listen for server messages.
 			sendToServer("CONNECT " + username);
+			window.setUser(username);
 		} catch (UnknownHostException e) {
 			disconnect(); // stop program if error
 			e.printStackTrace(); // should do something better
@@ -108,7 +112,8 @@ public class ChatClient {
 	}
 
 	/**
-	 * @param running the running to set
+	 * @param running
+	 *            the running to set
 	 */
 	public static void setRunning(boolean running) {
 		ChatClient.running = running;

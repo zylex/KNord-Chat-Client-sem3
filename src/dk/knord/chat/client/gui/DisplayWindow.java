@@ -129,8 +129,9 @@ public class DisplayWindow implements IDisplayWindow {
 		textField.setForeground(Color.WHITE);
 		textField.setBackground(Color.BLACK);
 		// auto scroll
-		DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+		DefaultCaret caret = (DefaultCaret) textArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		
 		GridBagConstraints gbc_textField = new GridBagConstraints();
 		gbc_textField.insets = new Insets(0, 0, 0, 5);
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
@@ -151,13 +152,9 @@ public class DisplayWindow implements IDisplayWindow {
 		gbc_btnSendMsg.gridx = 1;
 		gbc_btnSendMsg.gridy = 0;
 		panel.add(btnSendMsg, gbc_btnSendMsg);
-		/*scrollPane.getVerticalScrollBar().addAdjustmentListener(
-				new AdjustmentListener() {
-					public void adjustmentValueChanged(AdjustmentEvent e) {
-						e.getAdjustable().setValue(
-								e.getAdjustable().getMaximum());
-					}
-				});*/
+		// word wrapping
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
 	}
 
 	protected JButton getBtnSendMsg() {
@@ -266,6 +263,10 @@ public class DisplayWindow implements IDisplayWindow {
 	private void sendMessageToChatClientInput() {
 		userInput.handleInput(textField.getText());
 		textField.setText("");
+	}
+
+	public void setUser(String username) {
+		frmChatymacchatchatSoftware.setTitle("ChatyMacChatChat Software: " + username);
 	}
 
 }

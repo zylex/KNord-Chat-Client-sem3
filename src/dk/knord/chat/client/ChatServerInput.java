@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import dk.knord.chat.client.KNordHeaderFields.ServerToClient;
@@ -69,10 +70,24 @@ public class ChatServerInput implements Runnable {
 				break;
 			case ServerToClient.DISCONNECT:
 				ChatClient
-						.printMsg("RECEIVED:\n> DISCONNECT > Client is disconnecting...");
+						.printMsg("> RECEIVED: DISCONNECT, Client is disconnecting...");
 				ChatClient.disconnect();
 				ChatClient.printMsg("> You are now disconnected");
 				break;
+			case ServerToClient.MESSAGE:
+				StringTokenizer st = new StringTokenizer(inputMessageBuffer.get(0));
+				st.nextToken();
+				String dest = st.nextToken();
+				String message = "From " + dest + ": " + inputMessageBuffer.get(1);
+				if (inputMessageBuffer.size() > 2) {
+					for (int index = 2; index < inputMessageBuffer.size(); index++) {
+						message += "\n" + inputMessageBuffer.get(index);
+					}
+				}
+				ChatClient.printMsg(message);
+				break;
+			case ServerToClient.NO_SUCH_ALIAS:
+				ChatClient.printMsg("There is no such alias.");
 			default:
 				ChatClient.printMsg("RECEIVED:\n");
 				for (int index = 0; index < inputMessageBuffer.size(); index++) {

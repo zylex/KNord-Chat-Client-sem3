@@ -3,7 +3,6 @@ package dk.knord.chat.client;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -64,7 +63,6 @@ public class ChatClient {
 			serverThread = new Thread(serverInput);
 			serverThread.start(); // listen for server messages.
 			sendToServer("CONNECT " + username);
-			sendToServer("LIST");
 		} catch (UnknownHostException e) {
 			disconnect(); // stop program if error
 			e.printStackTrace(); // should do something better
@@ -89,7 +87,6 @@ public class ChatClient {
 	}
 
 	protected static void listChatters(Vector<String> chatters) {
-		Collections.sort(chatters);
 		window.displayChatters(chatters);
 	}
 

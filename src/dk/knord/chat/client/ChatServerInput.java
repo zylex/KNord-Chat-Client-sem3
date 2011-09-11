@@ -28,10 +28,8 @@ public class ChatServerInput implements Runnable {
 				if (input.ready()) {
 					String message = input.readLine();
 					if (message != null) {
-						System.out.println(message);
 						if (message.equals("")) {
 							// execute the messageBuffer
-							System.out.println("why is this executed twice?");
 							executeMessageBuffer();
 						} else {
 							// add message to buffer
@@ -59,9 +57,6 @@ public class ChatServerInput implements Runnable {
 	private void executeMessageBuffer() {
 		if (inputMessageBuffer.isEmpty()) {
 			ChatClient.printMsg("RECEIVED: Empty message from server.");
-			// TODO next line causes an infinite loop with hte server.
-			/*ChatClient
-					.sendToServer(ClientToServer.commands[ClientToServer.UNKNOWN]);*/
 		} else {
 			String command = inputMessageBuffer.get(0);
 			switch (ServerToClient.getCommand(command)) {
@@ -71,13 +66,6 @@ public class ChatServerInput implements Runnable {
 					chatters.add(inputMessageBuffer.get(i));
 				}
 				ChatClient.listChatters(chatters);
-				// ChatClient.printMsg("RECEIVED:"
-				// + ServerToClient.commands[ServerToClient.LIST]);
-
-				for (int index = 0; index < inputMessageBuffer.size(); index++) {
-					ChatClient.printMsg("> " + inputMessageBuffer.get(index));
-				}
-
 				break;
 			case ServerToClient.DISCONNECT:
 				ChatClient

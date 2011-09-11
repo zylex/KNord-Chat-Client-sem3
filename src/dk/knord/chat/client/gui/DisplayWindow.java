@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -23,6 +24,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.text.DefaultCaret;
 
 import dk.knord.chat.client.ChatClient;
 import dk.knord.chat.client.ChatClientInput;
@@ -35,7 +37,8 @@ public class DisplayWindow implements IDisplayWindow {
 	private JButton btnSendMsg;
 	private JTextArea textArea;
 	private JList list;
-	private JScrollPane scrollPane_1;
+	private JScrollPane scrollPane_1, scrollPane;
+	private ArrayList<String> currentChatters = new ArrayList<String>(0);
 
 	private ChatClientInput userInput;
 
@@ -79,7 +82,7 @@ public class DisplayWindow implements IDisplayWindow {
 		frmChatymacchatchatSoftware.getContentPane().add(splitPane,
 				gbc_splitPane);
 
-		JScrollPane scrollPane = new JScrollPane();
+		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
 
 		textArea = new JTextArea();
@@ -125,6 +128,9 @@ public class DisplayWindow implements IDisplayWindow {
 		});
 		textField.setForeground(Color.WHITE);
 		textField.setBackground(Color.BLACK);
+		// auto scroll
+		DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		GridBagConstraints gbc_textField = new GridBagConstraints();
 		gbc_textField.insets = new Insets(0, 0, 0, 5);
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
@@ -145,6 +151,13 @@ public class DisplayWindow implements IDisplayWindow {
 		gbc_btnSendMsg.gridx = 1;
 		gbc_btnSendMsg.gridy = 0;
 		panel.add(btnSendMsg, gbc_btnSendMsg);
+		/*scrollPane.getVerticalScrollBar().addAdjustmentListener(
+				new AdjustmentListener() {
+					public void adjustmentValueChanged(AdjustmentEvent e) {
+						e.getAdjustable().setValue(
+								e.getAdjustable().getMaximum());
+					}
+				});*/
 	}
 
 	protected JButton getBtnSendMsg() {
@@ -154,7 +167,6 @@ public class DisplayWindow implements IDisplayWindow {
 	@Override
 	public synchronized void appendMsg(String msg) {
 		getTextArea().append(msg + "\n");
-		textArea.setCaretPosition(textArea.getCaretPosition() + msg.length());
 	}
 
 	protected JTextArea getTextArea() {
@@ -168,6 +180,60 @@ public class DisplayWindow implements IDisplayWindow {
 
 	public synchronized void displayChatters(Vector<String> chatters) {
 		if (!chatters.isEmpty()) {
+			int size = currentChatters.size();
+			if (size > 0) {
+				ArrayList<String> temp = new ArrayList<String>(0);
+				temp.addAll(chatters);
+				ArrayList<String> temp2 = new ArrayList<String>(0);
+				if (size < temp.size()) {
+					for (int i = 0; i < temp.size(); i++) {
+						for (int j = 0; j < size; j++) {
+							if (temp.get(i).equals(currentChatters.get(j))) {
+								temp2.add(temp.get(i));
+								break;
+							}
+						}
+					}
+					temp.removeAll(temp2);
+					if (temp.size() > 0) {
+						String msg = temp.remove(0);
+						while (!temp.isEmpty()) {
+							msg += ", " + temp.remove(0);
+						}
+						msg += " connected to the chat room.";
+						appendMsg(msg);
+					} else {
+						appendMsg("Not sure who logged on");
+					}
+				} else if (size > temp.size()) {
+					for (int i = 0; i < size; i++) {
+						for (int j = 0; j < temp.size(); j++) {
+							if (currentChatters.get(i).equals(temp.get(j))) {
+								temp2.add(currentChatters.get(i));
+								break;
+							}
+						}
+					}
+					currentChatters.removeAll(temp2);
+					if (currentChatters.size() > 0) {
+						String msg = currentChatters.remove(0);
+						while (!currentChatters.isEmpty()) {
+							msg += ", " + currentChatters.remove(0);
+						}
+						msg += " disconnected from the chat room.";
+						appendMsg(msg);
+					} else {
+						appendMsg("Not sure who logged off");
+					}
+				} else {
+					appendMsg("Something went horribly wrong.");
+					// someone logged on and someone else logged off, or the
+					// user sent the request
+				}
+			}
+			currentChatters.clear();
+			currentChatters.trimToSize();
+			currentChatters.addAll(chatters);
 			list.setListData(chatters);
 			// sometimes makes an array out of bounds exception if the gui is
 			// not refreshed with a runnable using invokeLater() method.

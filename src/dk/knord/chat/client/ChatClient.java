@@ -82,6 +82,8 @@ public class ChatClient {
 			try {
 				running = false;
 				serverThread.interrupt();
+				userInput.getOutput().close();
+				serverInput.getInput().close();
 				connection.close();
 			} catch (IOException e) {
 				// TODO we should try to be clever here...

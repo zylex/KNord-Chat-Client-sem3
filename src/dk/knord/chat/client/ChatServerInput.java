@@ -98,4 +98,11 @@ public class ChatServerInput implements Runnable {
 		}
 		inputMessageBuffer = new ArrayList<String>(0);
 	}
+
+	/**
+	 * @return the input
+	 */
+	public BufferedReader getInput() {
+		return input;
+	}
 }

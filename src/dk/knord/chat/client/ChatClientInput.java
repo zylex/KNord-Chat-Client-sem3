@@ -89,6 +89,13 @@ public class ChatClientInput {
 		messageBuffer.removeAll(messageBuffer);
 	}
 
+	/**
+	 * @return the output
+	 */
+	PrintWriter getOutput() {
+		return output;
+	}
+
 	public void sendLine(String msg) {
 		output.println(msg);
 		// ChatClient.printMsg("> " + msg);
